@@ -5,13 +5,13 @@ from typing import Dict, Tuple
 class Island:
     def __init__(
         self, id: str, 
-        player_id: int, 
+        player_id: str, 
         pos: tuple[int, int], 
         value: int, 
         income:int, 
         natives: bool, 
         main: bool,
-        reinforcements: Tuple[int, int] #(player_id, num_reinforcements)
+        reinforcements: Tuple[str, int] #(player_id, num_reinforcements)
     ):
         self.id = id
         self.player_id = player_id
@@ -23,14 +23,17 @@ class Island:
         self.reinforcements = reinforcements
 
 class Player:
-    def __init__(self, id: int):
+    def __init__(self, id: str, name):
         self.id = id
+        self.name = name
 
 
 class Game:
-    def __init__(self, players: int):
-        self.players = {i:Player(i, 15) for i in range(players)}
+    def __init__(self, total_players: int):
+        self.total_players = total_players
+        self.players = {} 
         self.islands = self.generate_islands()
+        self.state = "WAITING_FOR_PLAYERS"
         self.lost = []
 
     # Make the island Generation logic
@@ -39,7 +42,7 @@ class Game:
         return islands
     
 
-    def move(self, previous_island: str, island_id: str, player_id: int, rs:int, reinforcement_id:int=None):
+    def move(self, previous_island: str, island_id: str, player_id: str, rs:int, reinforcement_id:int=None):
         self.islands[previous_island].rs -= rs
         island = self.islands[island_id]
         if island.player_id == player_id:
@@ -65,10 +68,16 @@ class Game:
         return [{a:getattr(island, a) for a in dir(island) if not a.startswith('__')} for island in self.islands]
         
     
+    def add_player(self, player_id: str, player_name):
+        if player_id not in self.players:
+            self.players[player_id] = Player(player_id, player_name)
+            print(f"Player {player_id} has joined the game.")
+            
+        # If enough players have joined, change the game state to PLAYING
+        if len(self.players) == self.total_players:
+            self.state = "PLAYING"
+            print("All players have joined. The game is starting!")
 
 
-
-        
-
-
-    
+    def is_game_ready(self):
+        return len(self.players) == self.total_players
