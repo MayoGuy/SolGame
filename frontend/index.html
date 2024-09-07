@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -8,14 +8,28 @@
   </head>
   <body>
     <header>
-      <p>A game about islands</p>
+      <div class="navbar">
+        <div id="Logo">Logo</div>
+        <a href="/">Instructions</a>
+      </div>
     </header>
     <main>
+      <div id="overlay">
+        <div>Choose your username:</div>
+        <div>
+          <input type="text" id="username" placeholder="Username" />
+        </div>
+        <div>
+          <button id="create-game">Create Game</button>
+        </div>
+        <div>Or, If you already have an invite:</div>
+        <div>
+          <input type="text" id="invite-code" placeholder="Invite Code" />
+        </div>
+      </div>
+      <!-- The actual game will be rendered here -->
       <canvas id="gameCanvas"></canvas>
     </main>
-    <footer>
-      <p>NetheriteCake©©©©©</p>
-    </footer>
     <script type="module" src="/src/main.js"></script>
   </body>
 </html>
