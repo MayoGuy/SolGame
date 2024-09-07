@@ -1,79 +1,95 @@
-from fastapi import FastAPI, WebSocket, HTTPException, WebSocketDisconnect
-from fastapi.responses import HTMLResponse
-from fastapi.staticfiles import StaticFiles
+import socketio
+import uvicorn
 from typing import Dict
-from connection_manager import ConnectionManager
+import json
 from game import Game
 
 import random, string
 
 
-manager = ConnectionManager()
-app = FastAPI()
+sio = socketio.AsyncServer(async_mode="asgi", cors_allowed_origins="*")
+app = socketio.ASGIApp(sio)
 Games: Dict[str, Game] = {}
 
-app.mount("/static", StaticFiles(directory="static"), name="static")
 
-
-@app.get('/')
-async def root():
-    with open("index.html") as f:
-        return HTMLResponse(f.read())
-
-
-@app.get("/api/createGame")
-async def create_game(players: int):
+@sio.event
+async def create_game(sid, players: int):
     x = ''.join(random.choice(string.ascii_uppercase + string.ascii_lowercase + string.digits) for _ in range(8))
+    if x in Games:
+        return await sio.emit("error", "Game already exists")
     Games[x] = Game(players)
-    return {"game_id": x, "message": "Game created successfully"}
+    print("Game created", players)
+    await sio.enter_room(sid, x)
+    await sio.emit("create_game", {"game_id": x, "message": "Game created successfully"}, room=sid)
 
 
-@app.websocket("/api/gameWs/{game_id}")
-async def websocket_endpoint(*, websocket:WebSocket, game_id:str):
+@sio.event
+async def join_game(sid, data):
+    data = json.loads(data)
+    game_id = data.get("game_id")
+    plater_id = sid
+    player_name = data.get("player_name")
+
     if game_id not in Games:
-        await websocket.close(code=1003) 
-        raise HTTPException(status_code=404, detail="Game not found")
-    await websocket.accept()
-    initial_message = await websocket.receive_json()
-    if initial_message.get('event') == 'initialize':
-        player_id = initial_message.get("data").get("player_id")
-        player_name = initial_message.get("data").get("player_name")
-        game = Games[game_id]
-        game.add_player(player_id, player_name)
-        await manager.connect(websocket, game_id, player_id)
-        
-        # Send the current game state to the newly connected player
-        send_data = {
-            "islands": game.encode_islands(),
-            "lost": game.lost,
-            "players": {k:game.players[k].name for k in game.players.keys()},
-            "state": game.state,
-            "event":"add_player_personal"
-        }
-        await manager.send_personal_message(send_data, websocket)
-    player_list = {"players": {k:game.players[k].name for k in game.players.keys()}, "state": game.state, "event":"add_player"}
-    await manager.broadcast(player_list, game_id)
+        return await sio.emit("error", "Game not found")
+    if Games[game_id].state != "WAITING_FOR_PLAYERS":
+        return await sio.emit("error", "Game already started")
+    if len(Games[game_id].players) >= Games[game_id].total_players:
+        return await sio.emit("error", "Game is full")
+    if plater_id in Games[game_id].players:
+        return await sio.emit("error", "You are already in the game")
+    
+    game = Games[game_id]
+    game.add_player(plater_id, player_name)
+
+
+    await sio.enter_room(sid, game_id)
+    await sio.emit("join_game", {"game_id": game_id, "message": "Joined successfully"}, room=sid)
 
     if game.is_game_ready():
         game.state = "PLAYING"
-        await manager.broadcast({"message": "Game has started!", "event":"start"}, game_id)
+        await sio.emit("start_game", {"state": game.state}, room=game_id)
+    await sio.emit("update_players", {"players": [(k, game.players[k].name) for k in game.players.keys()]}, room=game_id)
 
-    try: 
-        while True:
-            try:
-                data = await websocket.receive_json()
-                # The format for sending data:
-                # [{"previous_island": "island_id", "island_id": "island_id", "player_id": 0, "rs": 0} ...]
-                # List of all of these moves made in the turn.
-                for move in data:
-                    Games[game_id].move(move["previous_island"], move["island_id"], move["player_id"], move["rs"])
-                send_data = {"islands": Games[game_id].encode_islands(), "lost": Games[game_id].lost, "event":"move"}
-                await manager.broadcast(send_data, game_id)
-            except ValueError:
-                await websocket.send_json({"message": "Invalid JSON", "event":"error"})
-    except WebSocketDisconnect:
-        manager.disconnect(websocket, game_id, player_id)
-        print("Client disconnected")
-    except Exception as e:
-        print(f"Error in game {game_id}:", e)
-        await websocket.close(code=1003)
+
+@sio.event
+async def move(sid, data):
+    data = json.loads(data)
+    game_id = data.get("game_id")
+    player_id = sid
+    previous_island = data.get("previous_island")
+    island_id = data.get("island_id")
+    rs = data.get("rs")
+    reinforcement_id = data.get("reinforcement_id")
+    if game_id not in Games:
+        return await sio.emit("error", "Game not found")
+    if player_id not in Games[game_id].players:
+        return await sio.emit("error", "You are not in the game")
+    if Games[game_id].state != "PLAYING":
+        return await sio.emit("error", "Game is not in progress")
+    if Games[game_id].islands[previous_island].player_id != player_id:
+        return await sio.emit("error", "You are not in this island")
+
+    Games[game_id].move(previous_island, island_id, player_id, rs, reinforcement_id)
+    encoded_islands = Games[game_id].encode_islands()
+    for index, isl in enumerate(encoded_islands):
+        del encoded_islands[index]['value']
+        del encoded_islands[index]['income']
+        del encoded_islands[index]['reinforcements']
+
+    await sio.emit("update_islands", {"islands": Games[game_id].encode_islands(), "lost": Games[game_id].lost}, room=game_id)
+
+
+@sio.event
+async def disconnect(sid):
+    for game_id in Games:
+        if sid in Games[game_id].players:
+            Games[game_id].remove_player(sid)
+            await sio.emit("update_players", {"players": [(k, Games[game_id].players[k].name) for k in Games[game_id].players.keys()]}, room=game_id)
+            if Games[game_id].is_game_ready():
+                Games[game_id].state = "PLAYING"
+                await sio.emit("start_game", {"state": Games[game_id].state}, room=game_id)
+
+
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=3000)

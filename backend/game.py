@@ -26,19 +26,20 @@ class Player:
     def __init__(self, id: str, name):
         self.id = id
         self.name = name
+        self.disconnected = False
 
 
 class Game:
     def __init__(self, total_players: int):
         self.total_players = total_players
-        self.players = {} 
-        self.islands = self.generate_islands()
+        self.players: Dict[str, Player] = {} 
+        self.islands = {}
         self.state = "WAITING_FOR_PLAYERS"
         self.lost = []
 
     # Make the island Generation logic
     def generate_islands():
-        islands: Dict[str, Island] = []
+        islands: Dict[str, Island] = {}
         return islands
     
 
@@ -81,3 +82,9 @@ class Game:
 
     def is_game_ready(self):
         return len(self.players) == self.total_players
+    
+
+    def remove_player(self, player_id: str):
+        if player_id in self.players:
+            del self.players[player_id]
+            print(f"Player {player_id} has left the game.")
