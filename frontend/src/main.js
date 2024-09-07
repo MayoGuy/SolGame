@@ -1,4 +1,5 @@
 import './style.css'
+import { io } from 'socket.io-client'
 
 import Phaser from 'phaser'
 
@@ -9,5 +10,15 @@ const config = {
     canvas: gameCanvas,
 }
 
+const socket = io("http://localhost:3000")
+
+socket.on("connect", () => {
+    console.log("connected")
+})
+
+
+socket.on("create_game", () => {
+    
+})
 
 const game = new Phaser.Game(config)
