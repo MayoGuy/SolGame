@@ -3,9 +3,9 @@ from fastapi import WebSocket, WebSocketDisconnect
 
 class ConnectionManager:
     def __init__(self):
-        self.active_connections: Dict[str, Dict[int, WebSocket]] = {}
+        self.active_connections: Dict[str, Dict[str, WebSocket]] = {}
 
-    async def connect(self, websocket: WebSocket, game_id: str, player_id: int):
+    async def connect(self, websocket: WebSocket, game_id: str, player_id: str):
         await websocket.accept()
         
         if game_id not in self.active_connections:
@@ -14,7 +14,7 @@ class ConnectionManager:
         self.active_connections[game_id][player_id] = websocket
         print(f"New connection from player {player_id} in game {game_id}. Total connections: {len(self.active_connections[game_id])}")
 
-    def disconnect(self, websocket: WebSocket, game_id: str, player_id: int):
+    def disconnect(self, websocket: WebSocket, game_id: str, player_id: str):
         if game_id in self.active_connections:
             if player_id in self.active_connections[game_id]:
                 del self.active_connections[game_id][player_id]
@@ -29,5 +29,13 @@ class ConnectionManager:
 
     async def broadcast(self, message: dict, game_id: str):
         if game_id in self.active_connections:
-            for connection in self.active_connections[game_id].values():
-                await connection.send_json(message)
+            for player_id, connection in self.active_connections[game_id].items():
+                if message.get('event') == 'move':
+                    for index, island in enumerate(message.get('islands')):
+                        if island.get('player_id') != player_id or island.get('reinforcements')[0] != player_id:
+                            del message["islands"][index]['value']
+                            del message["islands"][index]['income']
+                            del message["islands"][index]['reinforcements']
+                            
+                else:
+                    await connection.send_json(message)
