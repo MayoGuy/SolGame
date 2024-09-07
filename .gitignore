@@ -2,6 +2,7 @@
 
 # dependencies
 node_modules/
+__pycahe__/
 /.pnp
 .pnp.js
 

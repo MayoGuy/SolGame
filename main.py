@@ -1,5 +1,6 @@
 from fastapi import FastAPI, WebSocket, HTTPException, WebSocketDisconnect
-print("Client disconnected")
+from fastapi.responses import HTMLResponse
+from fastapi.staticfiles import StaticFiles
 from typing import Dict
 from connection_manager import ConnectionManager
 from game import Game
@@ -10,6 +11,14 @@ import random, string
 manager = ConnectionManager()
 app = FastAPI()
 Games: Dict[str, Game] = {}
+
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
+
+@app.get('/')
+async def root():
+    with open("index.html") as f:
+        return HTMLResponse(f.read())
 
 
 @app.get("/api/createGame")
