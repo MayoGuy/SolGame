@@ -53,10 +53,6 @@ joinButton.addEventListener("click", () => {
 
 // manipulate the navbar
 function changeNavbar() {
-  // display the username
-  const name = document.getElementById("username").value;
-  document.getElementById("username-display").innerHTML = name;
-
   // replace the instructions resign button
   const instructionsLink = document.getElementById("instructions");
 

@@ -83,6 +83,19 @@ export default class GameScene extends Phaser.Scene {
     for (let i = 0; i < data.players.length; i++) {
       players.push(data.players[i][0]);
     }
+    // Finding the current player's username and color from their Socket ID
+    const currentPlayer = data.players.find(
+      (player) => player[0] === this.socket.id
+    );
+
+    const username = currentPlayer[1];
+    const color = currentPlayer[2];
+
+    // display the username
+    document.getElementById("username-display").innerHTML = username;
+
+    // display the pfp
+    document.getElementById("pfp-display").src = `/${color}.png`;
   };
 
   update() {}
