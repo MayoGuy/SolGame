@@ -23,7 +23,6 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  
 }
 
 header,
@@ -63,7 +62,7 @@ main {
   z-index: 20;
   color: white;
   padding: 40px 10px 10px 10px;
-  background: url("../assets/menu.png") center/contain no-repeat;
+  background: url("../public/menu.png") center/contain no-repeat;
   width: 600px;
   height: 450px;
 }
@@ -83,12 +82,10 @@ main {
   padding: 10px 10px;
 }
 
+a,
+#username-display,
 #Logo {
   font-size: 24px;
-  color: white;
-}
-
-a {
   text-decoration: none;
   color: white;
 }
@@ -97,7 +94,7 @@ a:hover {
   color: var(--darker-brown);
 }
 
-button {
+.btn {
   background-color: var(--dark-green);
   border: 2px solid var(--darker-green);
   color: white;
@@ -112,7 +109,7 @@ button {
   border-radius: 5px;
 }
 
-button:hover {
+.btn:hover {
   background-color: var(--darker-green);
 }
 
@@ -139,7 +136,7 @@ input:focus {
 }
 
 a,
-button,
+.btn,
 input {
   transition: ease-in 0.2s;
 }
@@ -147,5 +144,17 @@ input {
 .hidden {
   transition: all 1s linear;
   display: none !important;
-  
+}
+
+#resign-button {
+  background: url("../public/resign.png") center/contain no-repeat;
+  cursor: pointer;
+  width: 60px;
+  height: 45px;
+  border: none;
+}
+
+#resign-button:active {
+  background: url("../public/resign-click.png") center/contain no-repeat;
+  translate: 0px 5px;
 }
