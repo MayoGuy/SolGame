@@ -10,7 +10,8 @@
     <header>
       <div class="navbar">
         <div id="Logo">Logo</div>
-        <a href="/">Instructions</a>
+        <span id="username-display"></span>
+        <a id="instructions" href="/">Instructions</a>
       </div>
     </header>
     <main>
@@ -19,12 +20,13 @@
         <div>
           <input type="text" id="username" placeholder="Username" />
         </div>
-        <div>
-          <button id="create-game">Create Game</button>
-        </div>
-        <div>Or, If you already have an invite:</div>
+        <div>Create or join a game:</div>
         <div>
           <input type="text" id="invite-code" placeholder="Invite Code" />
+        </div>
+        <div>
+          <button class="btn" id="create-game">Create Game</button>
+          <button class="btn" id="join-game">Join Game</button>
         </div>
       </div>
       <!-- The actual game will be rendered here -->

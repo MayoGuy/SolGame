@@ -23,9 +23,10 @@ class Island:
         self.reinforcements = reinforcements
 
 class Player:
-    def __init__(self, id: str, name):
+    def __init__(self, id: str, name, color):
         self.id = id
         self.name = name
+        self.color = color
         self.disconnected = False
 
 
@@ -36,6 +37,21 @@ class Game:
         self.islands = {}
         self.state = "WAITING_FOR_PLAYERS"
         self.lost = []
+
+
+    def start(self):
+        # main islands
+        for i in range(4):
+            self.islands[f"m{i}"] = Island(
+                id=f"m{i}",
+                player_id=None,
+                pos=(random.randint(0, 8), random.randint(0, 8)),
+                value=0,
+                income=0,
+                natives=False,
+                main=True,
+                reinforcements=None
+            )
 
     # Make the island Generation logic
     def generate_islands():
@@ -69,9 +85,9 @@ class Game:
         return [{a:getattr(island, a) for a in dir(island) if not a.startswith('__')} for island in self.islands]
         
     
-    def add_player(self, player_id: str, player_name):
+    def add_player(self, player_id: str, player_name, player_color):
         if player_id not in self.players:
-            self.players[player_id] = Player(player_id, player_name)
+            self.players[player_id] = Player(player_id, player_name, player_color)
             print(f"Player {player_id} has joined the game.")
             
         # If enough players have joined, change the game state to PLAYING
