@@ -25,10 +25,10 @@ async def create_game(sid, players: int):
 
 @sio.event
 async def join_game(sid, data):
-    data = json.loads(data)
     game_id = data.get("game_id")
     plater_id = sid
     player_name = data.get("player_name")
+    player_color = data.get("player_color")
 
     if game_id not in Games:
         return await sio.emit("error", "Game not found")
@@ -40,7 +40,8 @@ async def join_game(sid, data):
         return await sio.emit("error", "You are already in the game")
     
     game = Games[game_id]
-    game.add_player(plater_id, player_name)
+    game.add_player(plater_id, player_name, player_color)
+    print(plater_id, player_name, player_color)
 
 
     await sio.enter_room(sid, game_id)
@@ -49,7 +50,7 @@ async def join_game(sid, data):
     if game.is_game_ready():
         game.state = "PLAYING"
         await sio.emit("start_game", {"state": game.state}, room=game_id)
-    await sio.emit("update_players", {"players": [(k, game.players[k].name) for k in game.players.keys()]}, room=game_id)
+    await sio.emit("update_players", {"players": [(k, game.players[k].name, game.players[k].color) for k in game.players.keys()]}, room=game_id)
 
 
 @sio.event
@@ -85,7 +86,7 @@ async def disconnect(sid):
     for game_id in Games:
         if sid in Games[game_id].players:
             Games[game_id].remove_player(sid)
-            await sio.emit("update_players", {"players": [(k, Games[game_id].players[k].name) for k in Games[game_id].players.keys()]}, room=game_id)
+            await sio.emit("update_players", {"players": [(k, Games[game_id].players[k].name, Games[game_id].players[k].color) for k in Games[game_id].players.keys()]}, room=game_id)
             if Games[game_id].is_game_ready():
                 Games[game_id].state = "PLAYING"
                 await sio.emit("start_game", {"state": Games[game_id].state}, room=game_id)
