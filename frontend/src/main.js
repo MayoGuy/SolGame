@@ -1,5 +1,5 @@
 import './style.css'
-import { io } from 'socket.io-client'
+
 import GameScene from './gameScene'
 
 import Phaser from 'phaser'
@@ -12,19 +12,43 @@ const config = {
     scale: {
         mode: Phaser.Scale.FIT,
     },
-
+    transparent: true,
     scene: [GameScene]
 }
 
-const socket = io("http://localhost:3000")
 
-socket.on("connect", () => {
-    console.log("connected")
+const createButton = document.getElementById("create-game");
+
+createButton.addEventListener("click", () => {
+    const name = document.getElementById("username").value;
+
+    if (!name) {
+        alert("Please enter a username");
+        return;
+    }
+    document.getElementById("overlay").classList.toggle("hidden");
+    const game = new Phaser.Game(config);
+    game.scene.start("GameScene", { username: name });
 })
 
 
-socket.on("create_game", () => {
-    
+const joinButton = document.getElementById("join-game");
+
+joinButton.addEventListener("click", () => {
+    const code = document.getElementById("invite-code").value;
+    if (!code) {
+        alert("Please enter a invite code");
+        return;
+    }
+    const name = document.getElementById("username").value;
+
+    if (!name) {
+        alert("Please enter a username");
+        return;
+    }
+    document.getElementById("overlay").classList.toggle("hidden");
+    const game = new Phaser.Game(config);
+    game.scene.start("GameScene", { inviteCode: code, username: name });
 })
 
-const game = new Phaser.Game(config)
+//const game = new Phaser.Game(config)
