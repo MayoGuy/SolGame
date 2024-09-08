@@ -54,8 +54,21 @@ class Game:
             )
 
     # Make the island Generation logic
-    def generate_islands():
+    def generate_islands(self):
         islands: Dict[str, Island] = {}
+        # main islands generation
+        for i in range(4):
+            player = list[self.players.keys()][i]
+            islands["island"+str(i)] = Island("island"+str(i), player, (0,0), 15, 1, False, True, None)
+
+
+        
+        # small islands generation
+        for i in range(8):
+            islands["island"+str(i)] = Island("island"+str(i), None, (0,0), 0, random.randint(1, 3), False, False, None)
+        
+        
+
         return islands
     
 

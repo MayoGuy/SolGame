@@ -48,6 +48,7 @@ main {
   max-height: 600px;
   max-width: 1200px;
   z-index: 2;
+  border: 10px ridge #8F6B4C;
 }
 
 #overlay {

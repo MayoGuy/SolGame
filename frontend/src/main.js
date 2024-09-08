@@ -9,8 +9,8 @@ const config = {
     width: window.innerWidth > 1200 ? 1200 : window.innerWidth,
     height: window.innerHeight > 800? 700 : window.innerHeight-100,
     canvas: gameCanvas,
-    scale: {
-        mode: Phaser.Scale.FIT,
+    sclae: {
+        mode: Phaser.Scale.WIDTH_CONTROLS_HEIGHT,
     },
     transparent: true,
     scene: [GameScene]
@@ -36,6 +36,7 @@ const joinButton = document.getElementById("join-game");
 
 joinButton.addEventListener("click", () => {
     const code = document.getElementById("invite-code").value;
+    
     if (!code) {
         alert("Please enter a invite code");
         return;

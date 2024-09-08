@@ -13,8 +13,8 @@ export default class GameScene extends Phaser.Scene {
     }
 
     preload() {
-        this.load.image('background', '/bg.png');
-        this.load.image('island', '/island1.png');
+        this.load.image('background', 'assets/bg.png');
+        this.load.image('island', 'assets/island1.png');
     }
 
     create(data) {
@@ -27,7 +27,9 @@ export default class GameScene extends Phaser.Scene {
         const island1 = this.add.sprite(200, 200, 'island').setScale(0.2);
         this.add.sprite(120, 400, 'island').setScale(0.1);
         this.add.sprite(450, 500, 'island').setScale(0.1);
-        this.add.sprite(1000, 700, 'island').setScale(0.1);
+        this.add.sprite(900, 600, 'island').setScale(0.1);
+
+
 
         
 
@@ -56,7 +58,7 @@ export default class GameScene extends Phaser.Scene {
         console.log("connected")
         if (this.inviteCode) {
             console.log(this.inviteCode);
-            this.socket.emit("join_game", { game_id: data.inviteCode, player_name: this.username, player_color: this.color });
+            this.socket.emit("join_game", { game_id: this.inviteCode, player_name: this.username, player_color: this.color });
         } else {
             this.socket.emit("create_game", 4);
         }
