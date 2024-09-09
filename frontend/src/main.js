@@ -1,19 +1,15 @@
 import "./style.css";
 
-import GameScene from "./gameScene";
-
+import WaitingRoom from "./waitingRoom";
 import Phaser from "phaser";
 
 const config = {
   type: Phaser.WEBGL,
-  width: window.innerWidth > 1200 ? 1200 : window.innerWidth,
-  height: window.innerHeight > 800 ? 700 : window.innerHeight - 100,
+  width:1200,
+  height: 600,
   canvas: gameCanvas,
-  scale: {
-    mode: Phaser.Scale.FIT,
-  },
   transparent: true,
-  scene: [GameScene],
+  scene: [WaitingRoom],
 };
 
 const createButton = document.getElementById("create-game");
@@ -25,7 +21,7 @@ createButton.addEventListener("click", () => {
     alert("Please enter a username");
     return;
   }
-  document.getElementById("overlay").classList.toggle("hidden");
+  document.getElementById("create-overlay").classList.toggle("hidden");
   const game = new Phaser.Game(config);
   game.scene.start("GameScene", { username: name });
   changeNavbar();
@@ -45,7 +41,7 @@ joinButton.addEventListener("click", () => {
     alert("Please enter a username");
     return;
   }
-  document.getElementById("overlay").classList.toggle("hidden");
+  document.getElementById("create-overlay").classList.toggle("hidden");
   const game = new Phaser.Game(config);
   game.scene.start("GameScene", { inviteCode: code, username: name });
   changeNavbar();

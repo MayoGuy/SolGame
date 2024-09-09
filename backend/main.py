@@ -12,6 +12,10 @@ app = socketio.ASGIApp(sio)
 Games: Dict[str, Game] = {}
 
 
+def generate_color(colors=None):
+    return random.choice([i for i in ["red", "blue", "green", "yellow" ] if i not in colors]) if colors else random.choice(["red", "blue", "green", "yellow"])
+
+
 @sio.event
 async def create_game(sid, players: int):
     x = ''.join(random.choice(string.ascii_uppercase + string.ascii_lowercase + string.digits) for _ in range(8))
@@ -28,7 +32,6 @@ async def join_game(sid, data):
     game_id = data.get("game_id")
     plater_id = sid
     player_name = data.get("player_name")
-    player_color = data.get("player_color")
 
     if game_id not in Games:
         return await sio.emit("error", "Game not found")
@@ -40,6 +43,8 @@ async def join_game(sid, data):
         return await sio.emit("error", "You are already in the game")
     
     game = Games[game_id]
+    colors = [player.color for player in game.players.values()]
+    player_color = generate_color(colors)
     game.add_player(plater_id, player_name, player_color)
     print(plater_id, player_name, player_color)
 
@@ -49,7 +54,12 @@ async def join_game(sid, data):
 
     if game.is_game_ready():
         game.state = "PLAYING"
-        await sio.emit("start_game", {"state": game.state}, room=game_id)
+        game.generate_islands()
+        
+        for player in game.players:
+            print(player, "started game")
+            islands = game.encode_islands(player)
+            await sio.emit("start_game", {"state": game.state, "islands": islands}, room=player)
     await sio.emit("update_players", {"players": [(k, game.players[k].name, game.players[k].color) for k in game.players.keys()]}, room=game_id)
 
 
@@ -72,13 +82,9 @@ async def move(sid, data):
         return await sio.emit("error", "You are not in this island")
 
     Games[game_id].move(previous_island, island_id, player_id, rs, reinforcement_id)
-    encoded_islands = Games[game_id].encode_islands()
-    for index, isl in enumerate(encoded_islands):
-        del encoded_islands[index]['value']
-        del encoded_islands[index]['income']
-        del encoded_islands[index]['reinforcements']
-
-    await sio.emit("update_islands", {"islands": Games[game_id].encode_islands(), "lost": Games[game_id].lost}, room=game_id)
+    
+    for player in Games[game_id].players:
+        await sio.emit("update_islands", {"islands": Games[game_id].encode_islands(player), "lost": Games[game_id].lost}, room=player)
 
 
 @sio.event

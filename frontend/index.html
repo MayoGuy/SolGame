@@ -18,19 +18,28 @@
       </div>
     </header>
     <main>
-      <div id="overlay">
-        <div>Choose your username:</div>
-        <div>
-          <input type="text" id="username" placeholder="Username" />
+      <div id="overlay" class="overlay-thing">
+        <div id="create-overlay">
+          <div>Choose your username:</div>
+          <div>
+            <input type="text" id="username" placeholder="Username" />
+          </div>
+          <div>Create or join a game:</div>
+          <div>
+            <input type="text" id="invite-code" placeholder="Invite Code" />
+          </div>
+          <div>
+            <button class="btn" id="create-game">Create Game</button>
+            <button class="btn" id="join-game">Join Game</button>
+          </div>
+          
         </div>
-        <div>Create or join a game:</div>
-        <div>
-          <input type="text" id="invite-code" placeholder="Invite Code" />
+        <div id="waiting-room" class="hidden">
+          <div id="waiting-room-text">Waiting for players to join...</div>
+          <div id="waiting-room-players"></div>
+          <div id="waiting-room-gamecode"></div>
         </div>
-        <div>
-          <button class="btn" id="create-game">Create Game</button>
-          <button class="btn" id="join-game">Join Game</button>
-        </div>
+        
       </div>
       <!-- The actual game will be rendered here -->
       <canvas id="gameCanvas"></canvas>

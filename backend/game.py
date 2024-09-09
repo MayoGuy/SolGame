@@ -34,7 +34,7 @@ class Game:
     def __init__(self, total_players: int):
         self.total_players = total_players
         self.players: Dict[str, Player] = {} 
-        self.islands = {}
+        self.islands: Dict[str, Island] = {}
         self.state = "WAITING_FOR_PLAYERS"
         self.lost = []
 
@@ -56,19 +56,29 @@ class Game:
     # Make the island Generation logic
     def generate_islands(self):
         islands: Dict[str, Island] = {}
+
+        sislands = [(270, 60), (190, 179), (383, 462), (236, 482), (956, 69), (987, 192), (1033, 448), (934, 532)]
+        mislands = [(113, 326), (446, 519), (725, 512), (1054, 324), (757, 135), (520, 73)]
+        lislands = [(360, 256), (615, 300), (853, 314)]
+
         # main islands generation
         for i in range(4):
-            player = list[self.players.keys()][i]
-            islands["island"+str(i)] = Island("island"+str(i), player, (0,0), 15, 1, False, True, None)
-
-
+            player = list(self.players.keys())[i]
+            islands["island"+str(i)] = Island("island"+str(i), player, (0, 0), 15, 1, False, True, None)
         
         # small islands generation
         for i in range(8):
-            islands["island"+str(i)] = Island("island"+str(i), None, (0,0), 0, random.randint(1, 3), False, False, None)
-        
-        
+            islands["s-island"+str(i)] = Island("s-island"+str(i+1), None, sislands[i], 0, random.randint(1, 2), False, False, None)
 
+        # middle islands generation
+        for i in range(6):
+            islands["m-island"+str(i+8)] = Island("m-island"+str(i+1), None, mislands[i], 0, random.randint(2, 4), True, False, None)
+        
+        # large islands generation
+        for i in range(3):
+            islands["l-island"+str(i+14)] = Island("l-island"+str(i+1), None, lislands[i], 0, random.randint(4, 6), True, False, None)
+
+        self.islands = islands
         return islands
     
 
@@ -94,8 +104,26 @@ class Game:
 
     
     # Encoding the islands into JSON for sending it off
-    def encode_islands(self):
-        return [{a:getattr(island, a) for a in dir(island) if not a.startswith('__')} for island in self.islands]
+    def encode_islands(self, player_id):
+        islands = []
+        for i in self.islands:
+            islands.append({
+                "id": self.islands[i].id,
+                "player_id": self.islands[i].player_id,
+                "value": self.islands[i].value,
+                "income": self.islands[i].income,
+                "reinforcements": self.islands[i].reinforcements,
+                "pos": self.islands[i].pos,
+                "natives": self.islands[i].natives,
+                "main": self.islands[i].main,
+            })
+        for index in range(len(islands)):
+            if islands[index]["player_id"] != player_id:
+                del islands[index]['value']
+                del islands[index]['income']
+                del islands[index]['reinforcements']
+
+        return islands
         
     
     def add_player(self, player_id: str, player_name, player_color):

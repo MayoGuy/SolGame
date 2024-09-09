@@ -44,13 +44,13 @@ main {
   top: 55%;
   left: 50%;
   transform: translate(-50%, -50%);
-  max-height: 600px;
-  max-width: 1200px;
+  max-height: 80vh;
+  max-width: 100vw;
   z-index: 2;
   border: 10px ridge #8F6B4C;
 }
 
-#overlay {
+.overlay-thing {
   font-size: 24px;
   position: absolute;
   top: 50%;
@@ -68,7 +68,7 @@ main {
   height: 450px;
 }
 
-#overlay div {
+.overlay-thing div {
   margin-bottom: 10px;
   text-align: center;
 }
@@ -171,4 +171,32 @@ input {
   margin-right: 10px;
   border: none;
   display: inline-block;
+}
+
+.player-color {
+  width: 50px;
+  height: 50px;
+  border: none;
+  display: inline-block;
+}
+
+#waiting-room-gamecode {
+  cursor: pointer;
+  margin-top: 10px;
+  padding: 5px 10px;
+  border-radius: 5px;
+  background-color: var(--darker-brown);
+}
+
+.player-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#waiting-room-players {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  font-size: 16px;
 }
