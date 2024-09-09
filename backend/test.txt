@@ -1,0 +1,50 @@
+Island: S1, Left
+Coords: 270, 60
+
+Island: S2, Left
+Coords: 190, 179
+
+Island: S3, Left
+Coords: 383, 462
+
+Island: S4, Left
+Coords: 236, 482
+
+Island: S5, Right
+Coords: 956, 69
+
+Island: S6, Right
+Coords: 987, 192
+
+Island: S7, Right
+Coords: 1033, 448
+
+Island: S8, Right
+Coords: 934, 532
+
+Island: M1, Left
+Coords: 113, 326
+
+Island: M2, Left
+Coords: 446, 519
+
+Island: M3, Right
+Coords: 725, 512
+
+Island: M4, Right
+Coords: 1054, 324
+
+Island: M5, Right
+Coords: 757, 135
+
+Island: M6, Right
+Coords: 520, 73
+
+Island: L1, Left
+Coords: 360, 256
+
+Island: L2, Centre
+Coords: 615, 300
+
+Island: L3, Right
+Coords: 853, 314
